@@ -4,6 +4,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.provider.Telephony
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class SmsReceiver : BroadcastReceiver() {
 
@@ -22,7 +25,6 @@ class SmsReceiver : BroadcastReceiver() {
         context: Context,
         intent: Intent
     ) {
-
         if (intent.action != Telephony.Sms.Intents.SMS_RECEIVED_ACTION) {
             return
         }
@@ -43,21 +45,24 @@ class SmsReceiver : BroadcastReceiver() {
                 it.messageBody ?: ""
             }
 
+        val database = AppDatabase.getInstance(context)
+
+        CoroutineScope(Dispatchers.IO).launch {
+            database.smsDao().insert(
+                Sms(
+                    sender = sender,
+                    message = message,
+                    timestamp = System.currentTimeMillis()
+                )
+            )
+        }
+
         val resultIntent = Intent(
             ACTION_SMS_RECEIVED
         ).apply {
-
             setPackage(context.packageName)
-
-            putExtra(
-                EXTRA_SENDER,
-                sender
-            )
-
-            putExtra(
-                EXTRA_MESSAGE,
-                message
-            )
+            putExtra(EXTRA_SENDER, sender)
+            putExtra(EXTRA_MESSAGE, message)
         }
 
         context.sendBroadcast(resultIntent)
