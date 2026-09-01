@@ -53,18 +53,22 @@ class MainActivity : ComponentActivity() {
     @Composable
     private fun TelegramSettingsScreen() {
 
+        var smsPermissionGranted by remember {
+            mutableStateOf(
+                ContextCompat.checkSelfPermission(
+                    this@MainActivity,
+                    Manifest.permission.RECEIVE_SMS
+                ) == PackageManager.PERMISSION_GRANTED
+            )
+        }
+        
         val smsPermissionLauncher =
             rememberLauncherForActivityResult(
                 ActivityResultContracts.RequestPermission()
-            ) {
-                // Permission result will be handled here later.
-            }
+            ) { granted ->
         
-        val smsPermissionGranted =
-            ContextCompat.checkSelfPermission(
-                this@MainActivity,
-                Manifest.permission.RECEIVE_SMS
-            ) == PackageManager.PERMISSION_GRANTED
+                smsPermissionGranted = granted
+            }
         
         var token by remember {
             mutableStateOf(
