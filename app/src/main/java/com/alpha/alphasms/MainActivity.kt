@@ -1,9 +1,7 @@
 package com.alpha.alphasms
 
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.Manifest
 import android.os.Bundle
@@ -112,55 +110,6 @@ class MainActivity : ComponentActivity() {
             mutableStateOf(false)
         }
         
-        var lastSmsSender by remember {
-            mutableStateOf<String?>(null)
-        }
-        
-        var lastSmsMessage by remember {
-            mutableStateOf<String?>(null)
-        }
-        
-        DisposableEffect(Unit) {
-        
-            val receiver = object : BroadcastReceiver() {
-        
-                override fun onReceive(
-                    context: Context,
-                    intent: Intent
-                ) {
-        
-                    if (
-                        intent.action ==
-                        SmsReceiver.ACTION_SMS_RECEIVED
-                    ) {
-        
-                        lastSmsSender =
-                            intent.getStringExtra(
-                                SmsReceiver.EXTRA_SENDER
-                            )
-        
-                        lastSmsMessage =
-                            intent.getStringExtra(
-                                SmsReceiver.EXTRA_MESSAGE
-                            )
-                    }
-                }
-            }
-        
-            ContextCompat.registerReceiver(
-                this@MainActivity,
-                receiver,
-                IntentFilter(
-                    SmsReceiver.ACTION_SMS_RECEIVED
-                ),
-                ContextCompat.RECEIVER_NOT_EXPORTED
-            )
-        
-            onDispose {
-                unregisterReceiver(receiver)
-            }
-        }
-
         Column(
 
             modifier = Modifier
@@ -313,28 +262,6 @@ class MainActivity : ComponentActivity() {
                 ) {
                     Text("Grant SMS Permission")
                 }
-            }
-            
-            Text(
-                text =
-                    if (
-                        lastSmsSender == null
-                    ) {
-                        "No SMS received yet"
-                    } else {
-                        "Last received SMS"
-                    }
-            )
-            
-            if (lastSmsSender != null) {
-            
-                Text(
-                    text = "From: $lastSmsSender"
-                )
-            
-                Text(
-                    text = "Message: $lastSmsMessage"
-                )
             }
             
             Text(

@@ -10,17 +10,6 @@ import kotlinx.coroutines.launch
 
 class SmsReceiver : BroadcastReceiver() {
 
-    companion object {
-        const val ACTION_SMS_RECEIVED =
-            "com.alpha.alphasms.SMS_RECEIVED"
-
-        const val EXTRA_SENDER =
-            "sender"
-
-        const val EXTRA_MESSAGE =
-            "message"
-    }
-
     override fun onReceive(
         context: Context,
         intent: Intent
@@ -56,15 +45,5 @@ class SmsReceiver : BroadcastReceiver() {
                 )
             )
         }
-
-        val resultIntent = Intent(
-            ACTION_SMS_RECEIVED
-        ).apply {
-            setPackage(context.packageName)
-            putExtra(EXTRA_SENDER, sender)
-            putExtra(EXTRA_MESSAGE, message)
-        }
-
-        context.sendBroadcast(resultIntent)
     }
 }
