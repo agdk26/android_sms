@@ -17,8 +17,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -69,6 +72,14 @@ class MainActivity : ComponentActivity() {
         
                 smsPermissionGranted = granted
             }
+        
+        val database = remember {
+            AppDatabase.getInstance(this@MainActivity)
+        }
+        
+        val smsList by database.smsDao()
+            .getAll()
+            .collectAsState(initial = emptyList())
         
         var token by remember {
             mutableStateOf(
@@ -324,6 +335,31 @@ class MainActivity : ComponentActivity() {
                 Text(
                     text = "Message: $lastSmsMessage"
                 )
+            }
+            
+            Text(
+                text = "SMS History",
+                style = MaterialTheme.typography.titleMedium
+            )
+            
+            LazyColumn {
+                items(smsList) { sms ->
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                    ) {
+                        Text(
+                            text = "From: ${sms.sender}",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+            
+                        Text(
+                            text = sms.message,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                }
             }
         }
         
