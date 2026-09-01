@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -68,6 +69,10 @@ class MainActivity : ComponentActivity() {
                     "Settings not configured"
                 }
             )
+        }
+        
+        var showDeleteDialog by remember {
+            mutableStateOf(false)
         }
 
         Column(
@@ -184,18 +189,7 @@ class MainActivity : ComponentActivity() {
             TextButton(
 
                 onClick = {
-
-                    storage.delete()
-
-                    token = ""
-                    chatId = ""
-
-                    status =
-                        "Settings deleted"
-
-                    showToast(
-                        "Settings deleted"
-                    )
+                    showDeleteDialog = true
                 },
 
                 modifier = Modifier.fillMaxWidth()
@@ -206,6 +200,53 @@ class MainActivity : ComponentActivity() {
 
             Text(
                 text = status
+            )
+        }
+        
+        if (showDeleteDialog) {
+        
+            AlertDialog(
+                onDismissRequest = {
+                    showDeleteDialog = false
+                },
+        
+                title = {
+                    Text("Delete Settings")
+                },
+        
+                text = {
+                    Text("Are you sure you want to delete settings?")
+                },
+        
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+        
+                            storage.delete()
+        
+                            token = ""
+                            chatId = ""
+        
+                            status = "Settings deleted"
+        
+                            showDeleteDialog = false
+        
+                            showToast("Settings deleted")
+                        }
+                    ) {
+                        Text("Yes")
+                    }
+                },
+        
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            showDeleteDialog = false
+                        }
+                    ) {
+                        Text("No")
+                    }
+                }
             )
         }
     }
