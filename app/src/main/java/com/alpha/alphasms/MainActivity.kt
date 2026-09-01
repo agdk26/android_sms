@@ -1,9 +1,17 @@
 package com.alpha.alphasms
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.content.pm.PackageManager
+import android.Manifest
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +26,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.alpha.alphasms.ui.theme.AlphaSmsTheme
 import java.net.HttpURLConnection
 import java.net.URL
@@ -44,6 +53,19 @@ class MainActivity : ComponentActivity() {
     @Composable
     private fun TelegramSettingsScreen() {
 
+        val smsPermissionLauncher =
+            rememberLauncherForActivityResult(
+                ActivityResultContracts.RequestPermission()
+            ) {
+                // Permission result will be handled here later.
+            }
+        
+        val smsPermissionGranted =
+            ContextCompat.checkSelfPermission(
+                this@MainActivity,
+                Manifest.permission.RECEIVE_SMS
+            ) == PackageManager.PERMISSION_GRANTED
+        
         var token by remember {
             mutableStateOf(
                 storage.getToken() ?: ""
@@ -73,6 +95,55 @@ class MainActivity : ComponentActivity() {
         
         var showDeleteDialog by remember {
             mutableStateOf(false)
+        }
+        
+        var lastSmsSender by remember {
+            mutableStateOf<String?>(null)
+        }
+        
+        var lastSmsMessage by remember {
+            mutableStateOf<String?>(null)
+        }
+        
+        DisposableEffect(Unit) {
+        
+            val receiver = object : BroadcastReceiver() {
+        
+                override fun onReceive(
+                    context: Context,
+                    intent: Intent
+                ) {
+        
+                    if (
+                        intent.action ==
+                        SmsReceiver.ACTION_SMS_RECEIVED
+                    ) {
+        
+                        lastSmsSender =
+                            intent.getStringExtra(
+                                SmsReceiver.EXTRA_SENDER
+                            )
+        
+                        lastSmsMessage =
+                            intent.getStringExtra(
+                                SmsReceiver.EXTRA_MESSAGE
+                            )
+                    }
+                }
+            }
+        
+            ContextCompat.registerReceiver(
+                this@MainActivity,
+                receiver,
+                IntentFilter(
+                    SmsReceiver.ACTION_SMS_RECEIVED
+                ),
+                ContextCompat.RECEIVER_NOT_EXPORTED
+            )
+        
+            onDispose {
+                unregisterReceiver(receiver)
+            }
         }
 
         Column(
@@ -201,6 +272,55 @@ class MainActivity : ComponentActivity() {
             Text(
                 text = status
             )
+            
+            Text(
+                text = "SMS Receiver"
+            )
+            
+            Text(
+                text =
+                    if (smsPermissionGranted) {
+                        "Permission granted"
+                    } else {
+                        "Permission not granted"
+                    }
+            )
+            
+            if (!smsPermissionGranted) {
+            
+                Button(
+                    onClick = {
+                        smsPermissionLauncher.launch(
+                            Manifest.permission.RECEIVE_SMS
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Grant SMS Permission")
+                }
+            }
+            
+            Text(
+                text =
+                    if (
+                        lastSmsSender == null
+                    ) {
+                        "No SMS received yet"
+                    } else {
+                        "Last received SMS"
+                    }
+            )
+            
+            if (lastSmsSender != null) {
+            
+                Text(
+                    text = "From: $lastSmsSender"
+                )
+            
+                Text(
+                    text = "Message: $lastSmsMessage"
+                )
+            }
         }
         
         if (showDeleteDialog) {
