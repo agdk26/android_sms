@@ -9,6 +9,10 @@ data class Sms(
     val id: Long = 0,
 
     val sender: String,
+
     val message: String,
-    val timestamp: Long
+
+    val timestamp: Long,
+
+    val telegramStatus: String = "PENDING"
 )

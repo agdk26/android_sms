@@ -4,6 +4,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.provider.Telephony
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -44,6 +46,13 @@ class SmsReceiver : BroadcastReceiver() {
                     timestamp = System.currentTimeMillis()
                 )
             )
+        
+            val workRequest =
+                OneTimeWorkRequestBuilder<TelegramWorker>()
+                    .build()
+        
+            WorkManager.getInstance(context)
+                .enqueue(workRequest)
         }
     }
 }
