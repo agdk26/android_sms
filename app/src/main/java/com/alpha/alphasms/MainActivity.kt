@@ -32,6 +32,9 @@ import com.alpha.alphasms.ui.theme.AlphaSmsTheme
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class MainActivity : ComponentActivity() {
 
@@ -271,23 +274,45 @@ class MainActivity : ComponentActivity() {
             
             LazyColumn {
                 items(smsList) { sms ->
+            
+                    val dateFormat =
+                        SimpleDateFormat(
+                            "yyyy.MM.dd HH:mm:ss",
+                            Locale.getDefault()
+                        )
+            
+                    val receivedTime =
+                        dateFormat.format(Date(sms.timestamp))
+            
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp)
                     ) {
+            
                         Text(
                             text = "From: ${sms.sender}",
                             style = MaterialTheme.typography.bodyMedium
                         )
             
                         Text(
+                            text = "Received: $receivedTime",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+            
+                        Text(
                             text = sms.message,
                             style = MaterialTheme.typography.bodyLarge
+                        )
+            
+                        Text(
+                            text = "Telegram: ${sms.telegramStatus}",
+                            style = MaterialTheme.typography.bodySmall
                         )
                     }
                 }
             }
+            
         }
         
         if (showDeleteDialog) {
