@@ -6,6 +6,9 @@ import androidx.work.WorkerParameters
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class TelegramWorker(
     appContext: Context,
@@ -29,7 +32,19 @@ class TelegramWorker(
         for (sms in pendingSms) {
 
             try {
-                val text = "SMS from ${sms.sender}:\n${sms.message}"
+                val dateFormat =
+                    SimpleDateFormat(
+                        "yyyy.MM.dd HH:mm:ss",
+                        Locale.getDefault()
+                    )
+                
+                val receivedTime =
+                    dateFormat.format(Date(sms.timestamp))
+                
+                val text =
+                    "SMS from ${sms.sender}\n" +
+                    "Received: $receivedTime\n\n" +
+                    sms.message
 
                 val url = URL(
                     "https://api.telegram.org/bot$token/sendMessage"
