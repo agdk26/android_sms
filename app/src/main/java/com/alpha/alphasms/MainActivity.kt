@@ -113,203 +113,203 @@ class MainActivity : ComponentActivity() {
             mutableStateOf(false)
         }
         
-        Column(
-
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(24.dp),
-
             verticalArrangement =
                 Arrangement.spacedBy(16.dp)
         ) {
 
-            Text(
-                text = "AlphaSms"
-            )
-
-            OutlinedTextField(
-
-                value = token,
-
-                onValueChange = {
-                    token = it
-                },
-
-                modifier = Modifier.fillMaxWidth(),
-
-                label = {
-                    Text("Bot Token")
-                },
-
-                visualTransformation =
-                    PasswordVisualTransformation(),
-
-                singleLine = true
-            )
-
-            OutlinedTextField(
-
-                value = chatId,
-
-                onValueChange = {
-                    chatId = it
-                },
-
-                modifier = Modifier.fillMaxWidth(),
-
-                label = {
-                    Text("Chat ID")
-                },
-
-                singleLine = true
-            )
-
-            Button(
-
-                onClick = {
-
-                    if (token.isBlank()) {
-
-                        showToast(
-                            "Enter Bot Token"
-                        )
-
-                        return@Button
-                    }
-
-                    if (chatId.isBlank()) {
-
-                        showToast(
-                            "Enter Chat ID"
-                        )
-
-                        return@Button
-                    }
-
-                    storage.saveToken(
-                        token.trim()
-                    )
-
-                    storage.saveChatId(
-                        chatId.trim()
-                    )
-
-                    status =
-                        "Settings saved"
-
-                    showToast(
-                        "Settings saved"
-                    )
-                },
-
-                modifier = Modifier.fillMaxWidth()
-            ) {
-
-                Text("Save")
-            }
-
-            Button(
-
-                onClick = {
-
-                    sendTestMessage(
-                        token = token.trim(),
-                        chatId = chatId.trim()
-                    )
-                },
-
-                modifier = Modifier.fillMaxWidth()
-            ) {
-
-                Text("Send Test Message")
-            }
-
-            TextButton(
-
-                onClick = {
-                    showDeleteDialog = true
-                },
-
-                modifier = Modifier.fillMaxWidth()
-            ) {
-
-                Text("Delete Settings")
-            }
-
-            Text(
-                text = status
-            )
-            
-            Text(
-                text = "SMS Receiver"
-            )
-            
-            Text(
-                text =
-                    if (smsPermissionGranted) {
-                        "Permission granted"
-                    } else {
-                        "Permission not granted"
-                    }
-            )
-            
-            if (!smsPermissionGranted) {
-            
+            item {
+                Text(
+                    text = "AlphaSms"
+                )
+    
+                OutlinedTextField(
+    
+                    value = token,
+    
+                    onValueChange = {
+                        token = it
+                    },
+    
+                    modifier = Modifier.fillMaxWidth(),
+    
+                    label = {
+                        Text("Bot Token")
+                    },
+    
+                    visualTransformation =
+                        PasswordVisualTransformation(),
+    
+                    singleLine = true
+                )
+    
+                OutlinedTextField(
+    
+                    value = chatId,
+    
+                    onValueChange = {
+                        chatId = it
+                    },
+    
+                    modifier = Modifier.fillMaxWidth(),
+    
+                    label = {
+                        Text("Chat ID")
+                    },
+    
+                    singleLine = true
+                )
+    
                 Button(
+    
                     onClick = {
-                        smsPermissionLauncher.launch(
-                            Manifest.permission.RECEIVE_SMS
+    
+                        if (token.isBlank()) {
+    
+                            showToast(
+                                "Enter Bot Token"
+                            )
+    
+                            return@Button
+                        }
+    
+                        if (chatId.isBlank()) {
+    
+                            showToast(
+                                "Enter Chat ID"
+                            )
+    
+                            return@Button
+                        }
+    
+                        storage.saveToken(
+                            token.trim()
+                        )
+    
+                        storage.saveChatId(
+                            chatId.trim()
+                        )
+    
+                        status =
+                            "Settings saved"
+    
+                        showToast(
+                            "Settings saved"
                         )
                     },
+    
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Grant SMS Permission")
+    
+                    Text("Save")
+                }
+    
+                Button(
+    
+                    onClick = {
+    
+                        sendTestMessage(
+                            token = token.trim(),
+                            chatId = chatId.trim()
+                        )
+                    },
+    
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+    
+                    Text("Send Test Message")
+                }
+    
+                TextButton(
+    
+                    onClick = {
+                        showDeleteDialog = true
+                    },
+    
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+    
+                    Text("Delete Settings")
+                }
+    
+                Text(
+                    text = status
+                )
+                
+                Text(
+                    text = "SMS Receiver"
+                )
+                
+                Text(
+                    text =
+                        if (smsPermissionGranted) {
+                            "Permission granted"
+                        } else {
+                            "Permission not granted"
+                        }
+                )
+                
+                if (!smsPermissionGranted) {
+                
+                    Button(
+                        onClick = {
+                            smsPermissionLauncher.launch(
+                                Manifest.permission.RECEIVE_SMS
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Grant SMS Permission")
+                    }
                 }
             }
             
-            Text(
-                text = "SMS History",
-                style = MaterialTheme.typography.titleMedium
-            )
+            item {
+                Text(
+                    text = "SMS History",
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
             
-            LazyColumn {
-                items(smsList) { sms ->
-            
-                    val dateFormat =
-                        SimpleDateFormat(
-                            "yyyy.MM.dd HH:mm:ss",
-                            Locale.getDefault()
-                        )
-            
-                    val receivedTime =
-                        dateFormat.format(Date(sms.timestamp))
-            
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp)
-                    ) {
-            
-                        Text(
-                            text = "From: ${sms.sender}",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-            
-                        Text(
-                            text = "Received: $receivedTime",
-                            style = MaterialTheme.typography.bodySmall
-                        )
-            
-                        Text(
-                            text = sms.message,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-            
-                        Text(
-                            text = "Telegram: ${sms.telegramStatus}",
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    }
+            items(smsList) { sms ->
+        
+                val dateFormat =
+                    SimpleDateFormat(
+                        "yyyy.MM.dd HH:mm:ss",
+                        Locale.getDefault()
+                    )
+        
+                val receivedTime =
+                    dateFormat.format(Date(sms.timestamp))
+        
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                ) {
+        
+                    Text(
+                        text = "From: ${sms.sender}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+        
+                    Text(
+                        text = "Received: $receivedTime",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+        
+                    Text(
+                        text = sms.message,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+        
+                    Text(
+                        text = "Telegram: ${sms.telegramStatus}",
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
             }
             
