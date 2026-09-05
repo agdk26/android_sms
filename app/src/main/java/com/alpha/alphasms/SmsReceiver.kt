@@ -4,6 +4,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.provider.Telephony
+import androidx.work.Constraints
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import kotlinx.coroutines.CoroutineScope
@@ -47,12 +50,22 @@ class SmsReceiver : BroadcastReceiver() {
                 )
             )
         
+            val constraints =
+                Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .build()
+            
             val workRequest =
                 OneTimeWorkRequestBuilder<TelegramWorker>()
+                    .setConstraints(constraints)
                     .build()
         
             WorkManager.getInstance(context)
-                .enqueue(workRequest)
+                .enqueueUniqueWork(
+                    "telegram_delivery",
+                    ExistingWorkPolicy.KEEP,
+                    workRequest
+                )
         }
     }
 }
