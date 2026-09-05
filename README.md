@@ -2,6 +2,8 @@
 
 AlphaSms is a lightweight Android application that automatically forwards received SMS messages to a Telegram chat.
 
+[![Download AlphaSms](https://img.shields.io/badge/Download-AlphaSms%20APK-blue?style=for-the-badge)](../../releases/latest)
+
 The application receives SMS messages in the background, stores them locally, and sends them to Telegram when an Internet connection is available.
 
 ## Features
